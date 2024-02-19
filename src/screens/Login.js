@@ -10,8 +10,11 @@ import axios from "axios";
 export default function Login({ navigation }) {
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
+    const [loading, setLoading] = useState(false)
+    const [fail, setFail] = useState("")
     async function login() {
         try {
+            setLoading(true)
             const { data: login } = await axios.post(
                 `https://todo-api-omega.vercel.app/api/v1/auth/login`,
                 {
@@ -19,20 +22,22 @@ export default function Login({ navigation }) {
                     password: password
                 }
             )
-            if (login) {
-                const { data: profile } = await axios.get(
-                    `https://todo-api-omega.vercel.app/api/v1/profile`,
-                    { headers: { Authorization: `Bearer ${login.user.token}` } }
-                )
-                console.log(profile);
-                await EncryptedStorage.setItem("username", profile.user.username)
-                await EncryptedStorage.setItem("password", password)
-                await EncryptedStorage.setItem("email", profile.user.email)
-            }
-            await EncryptedStorage.setItem("token", login.user.token)
-            navigation.replace("Home")
+            const { data: profile } = await axios.get(
+                `https://todo-api-omega.vercel.app/api/v1/profile`,
+                { headers: { Authorization: `Bearer ${login.user.token}` } }
+            )
+            // console.log(profile);
+            // await EncryptedStorage.setItem("username", profile.user.username)
+            // await EncryptedStorage.setItem("password", password)
+            // await EncryptedStorage.setItem("email", profile.user.email)
+            await EncryptedStorage.setItem("credentials", JSON.stringify({ email, password, username: profile.user.username }))
+            // await EncryptedStorage.setItem("token", login.user.token)
+            setLoading(false)
+            navigation.replace("Home", { token: login.user.token })
         } catch (error) {
-            console.log(error, "DARI LOGIN SCREEN");
+            setLoading(false)
+            setFail(error.response.data.message)
+            console.log(error.response.data, "DARI LOGIN SCREEN");
         }
     }
     function register() {
@@ -41,7 +46,7 @@ export default function Login({ navigation }) {
     return (
         <View style={styles.Container}>
             <Background />
-            <Text style={styles.loginText}>LOGIN</Text>
+            <Text style={styles.loginText}>Login</Text>
             <Gap height={10} />
             <View style={styles.Wrapper}>
                 <FormInput Title={"Email"}
@@ -58,10 +63,18 @@ export default function Login({ navigation }) {
                     value={password}
                     onChangeText={(password) => setPassword(password)}
                 />
+                {
+                    fail && (
+                        <View style={{ justifyContent: 'center', alignItems: "center" }}>
+                            <Gap height={10} />
+                            <Text style={{ color: "red", fontWeight: 'bold' }}>{fail}</Text>
+                        </View>
+                    )
+                }
                 <Gap height={20} />
                 <Button
                     onPress={login}
-                    Title={"Masuk"} />
+                    Title={loading ? "Memuat..." : "Masuk"} />
                 <Gap height={20} />
                 <Button
                     onPress={register}

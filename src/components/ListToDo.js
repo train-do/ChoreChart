@@ -27,8 +27,7 @@ export default function ListToDo({ props, indeks, expand, selectedIdx, check, ed
                     <View style={{ ...styles.garis, height: "40%" }} />
                     <View style={styles.content}>
                         <Text style={{
-                            color: "white",
-                            fontWeight: "bold",
+                            ...styles.textTitle,
                             textDecorationLine: props.checked ? "line-through" : "none"
                         }}>{props.title}</Text>
                         <Gap height={5} />
@@ -62,6 +61,11 @@ export default function ListToDo({ props, indeks, expand, selectedIdx, check, ed
 }
 
 const styles = StyleSheet.create({
+    textTitle: {
+        color: "white",
+        fontWeight: "bold",
+        fontSize: 20
+    },
     garis: {
         backgroundColor: "white",
         height: "80%",

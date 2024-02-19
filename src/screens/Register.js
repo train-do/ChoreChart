@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { ScrollView, StyleSheet, Text, View } from "react-native";
 import Background from "../components/Background";
 import FormInput from "../components/FormInput";
 import Button from "../components/Button";
@@ -12,11 +12,14 @@ export default function Register({ navigation }) {
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
     const [konfirmasiPass, setKonfirmasiPass] = useState("")
+    const [loading, setLoading] = useState(false)
+    const [fail, setFail] = useState("")
     function kembali() {
         navigation.goBack()
     }
     async function daftar() {
         try {
+            setLoading(true)
             // console.log(nama, email, password, konfirmasiPass);
             const { data: register } = await axios.post(
                 `https://todo-api-omega.vercel.app/api/v1/auth/register`,
@@ -33,19 +36,34 @@ export default function Register({ navigation }) {
                     { headers: { Authorization: `Bearer ${register.user.token}` } }
                 )
                 console.log(profile);
-                await EncryptedStorage.setItem("username", profile.user.username)
-                await EncryptedStorage.setItem("password", password)
-                await EncryptedStorage.setItem("email", profile.user.email)
+                // await EncryptedStorage.setItem("username", profile.user.username)
+                // await EncryptedStorage.setItem("password", password)
+                // await EncryptedStorage.setItem("email", profile.user.email)
+                await EncryptedStorage.setItem("credentials", JSON.stringify({ email, password, username: profile.user.username }))
             }
-            await EncryptedStorage.setItem("token", register.user.token)
-            navigation.replace("Home")
+            // await EncryptedStorage.setItem("token", register.user.token)
+            setLoading(false)
+            // navigation.reset("Home", { token: register.user.token })
+            navigation.reset({
+                index: 1,
+                routes: [
+                    {
+                        name: 'Home',
+                        params: { token: register.user.token }
+                    },
+                ],
+            })
         } catch (error) {
-            console.log(error, "REGISTERRRR");
+            setLoading(false)
+            setFail(error.response.data.message)
+            console.log(error.response.data, "REGISTERRRR");
         }
     }
     return (
         <View style={styles.Container}>
             <Background />
+            {/* <ScrollView style={{ backgroundColor: "#ff00003b" }}> */}
+            {/* <View style={{ backgroundColor: "#00ff1959", justifyContent: "center", alignItems: "center" }}> */}
             <Text style={styles.loginText}>Register</Text>
             <Gap height={10} />
             <View style={styles.Wrapper}>
@@ -79,8 +97,16 @@ export default function Register({ navigation }) {
                     value={konfirmasiPass}
                     onChangeText={(konfirmasiPass) => setKonfirmasiPass(konfirmasiPass)}
                 />
+                {
+                    fail && (
+                        <View style={{ justifyContent: 'center', alignItems: "center" }}>
+                            <Gap height={10} />
+                            <Text style={{ color: "red", fontWeight: 'bold' }}>{fail}</Text>
+                        </View>
+                    )
+                }
                 <Gap height={20} />
-                <Button Title={"Daftar"}
+                <Button Title={loading ? "Memuat..." : "Daftar"}
                     onPress={daftar} />
                 <Gap height={20} />
                 <Button
@@ -89,6 +115,8 @@ export default function Register({ navigation }) {
                     bgColor={"#402E6E"}
                     width={150} />
             </View>
+            {/* </View>
+            </ScrollView> */}
         </View>
     )
 }

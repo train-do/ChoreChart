@@ -8,18 +8,20 @@ import axios from "axios";
 export default function SplashScreen({ navigation }) {
     async function validasi() {
         try {
-            const email = await EncryptedStorage.getItem("email")
-            const password = await EncryptedStorage.getItem("password")
-            if (email) {
+            // const email = await EncryptedStorage.getItem("email")
+            // const password = await EncryptedStorage.getItem("password")
+            const credentials = await EncryptedStorage.getItem("credentials")
+            if (credentials) {
                 // console.log(email);
+                const formData = JSON.parse(credentials)
                 const { data } = await axios.post(
                     `https://todo-api-omega.vercel.app/api/v1/auth/login`,
                     {
-                        email: email,
-                        password: password
+                        email: formData.email,
+                        password: formData.password
                     }
                 )
-                navigation.replace("Home")
+                navigation.replace("Home", { token: data.user.token })
             } else {
                 navigation.replace("Login")
             }

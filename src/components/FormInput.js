@@ -20,18 +20,22 @@ export default function FormInput({
                 <View style={styles.inputanContainer}>
                     <Icon style={styles.Icons}
                         name={iconName}
-                        size={27} />
+                        size={27}
+                        color={"black"} />
                     <TextInput style={styles.inputan}
                         placeholder={placeHolder}
                         secureTextEntry={secure}
                         autoCapitalize={capitalize}
-                        value={value} 
-                        onChangeText={onChangeText}/>
+                        value={value}
+                        onChangeText={onChangeText}
+                        placeholderTextColor={'grey'}
+                    />
                     {password &&
                         <TouchableOpacity onPress={() => { setSecure(!secure) }}>
                             <Icon style={styles.Icons}
                                 name={secure ? 'eye' : 'eye-off'}
-                                size={27} />
+                                size={27}
+                                color={"black"} />
                         </TouchableOpacity>
                     }
                 </View>
@@ -47,6 +51,7 @@ const styles = StyleSheet.create({
     inputan: {
         flex: 1,
         paddingHorizontal: 10,
+        color: "black"
         // backgroundColor: "blue"
     },
     Icons: {
